@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>井字棋</title>
+	<style type="text/css">
+		.mainbox{
+			margin-top: 100px;
+			margin-left: 100px;
+			width: 300px;
+			height: 300px;
+			float: left;
+		}
+
+		.btn_inside{
+			width: 98px;
+			height: 98px;
+			float: left;
+			border: 1px solid #3FAFAF;
+			/*background-color: blue;*/
+		}
+
+		.manuebox{
+			margin-top: 75px;
+			margin-left: 80px;
+			/*display: none;*/
+			width: 400px;
+			height: 100px;
+			line-height: 100px;
+			float: left;
+		}
+
+		.remark{
+			width: 400px;
+			height: 100px;
+			line-height: 100px;
+			text-align: center;
+			font-size: 50px;
+			color: #3FAFAF;
+			float: left;
+		}
+
+		.btn_reset{
+			width: 200px;
+			height: 50px;
+			line-height: 40px;
+			text-align: center;
+			margin-top: 40px;
+			margin-left: 87px;
+			border: 2px solid #2248DD;
+			border-radius: 6px;
+			font-size: 30px;
+			color: #2248DD;
+			float: left;
+		}
+		.btn_choose{
+			width: 163px;
+		    height: 42px;
+		    line-height: 38px;
+		    text-align: center;
+		    margin-top: 22px;
+		    margin-left: 87px;
+		    border: 2px solid #4DBE30;
+		    border-radius: 6px;
+		    font-size: 25px;
+		    color: #4DBE30;
+		    float: left;
+		}
+	</style>
+</head>
+<body>
+	<div class="mainbox">
+		<div class="btn_inside" location_x="0" location_y="0" id="one" clicked="0"></div>
+		<div class="btn_inside" location_x="0" location_y="1" id="two" clicked="0"></div>
+		<div class="btn_inside" location_x="0" location_y="2" id="three" clicked="0"></div>
+		<div class="btn_inside" location_x="1" location_y="0" id="four" clicked="0"></div>
+		<div class="btn_inside" location_x="1" location_y="1" id="five" clicked="0"></div>
+		<div class="btn_inside" location_x="1" location_y="2" id="six" clicked="0"></div>
+		<div class="btn_inside" location_x="2" location_y="0" id="seven" clicked="0"></div>
+		<div class="btn_inside" location_x="2" location_y="1" id="eight" clicked="0"></div>
+		<div class="btn_inside" location_x="2" location_y="2" id="nine" clicked="0"></div>
+	</div>
+
+	<div class="manuebox">
+		<div class="remark">have fun!</div>
+		<button class="btn_choose" id="double">双人游戏</button>
+		<button class="btn_choose" id="ai">电脑先下</button>
+		<button class="btn_choose" id="man">人类先下</button>
+		<button class="btn_reset" id="reset">重新开始</button>
+	</div>
+
+	<script src="jquery-3.2.1.min.js"></script>
+
+	<!-- 初始化变量 -->
+	<script >
+			var circle = 1;//默认第一步下的为圆圈
+
+			var mat = new Array();
+			mat[0] = new Array(0,0,0);
+			mat[1] = new Array(0,0,0);
+			mat[2] = new Array(0,0,0);
+
+			var temp_mat = new Array();
+			temp_mat[0] = new Array(0,0,0);
+			temp_mat[1] = new Array(0,0,0);
+			temp_mat[2] = new Array(0,0,0);
+
+			var index = new Array('#one','#two','#three','#four','#five','#six','#seven','#eight','#nine');
+
+			var mode_choose = 0; //默认选择双人下棋，0双人1机器先2人类先
+			var mode_current = 0; //默认现在的模式为双人下棋
+			
+	</script>
+
+	<!-- 初始化js -->
+	<script>
+			$(document).ready(function(){
+				$('#double').css({
+					'background-color':'#A3FF66'
+				})
+				// alert(circle);
+			})
+	</script>
+
+	<!-- 模式选择js -->
+	<script>
+			$(".btn_choose").click(function(){
+				var id = $(this).attr('id');
+				if(id == 'double'){
+					$('#ai').css({
+						'background-color':'#D5D5D5'
+					})
+					$('#man').css({
+						'background-color':'#D5D5D5'
+					})
+					$('#double').css({
+						'background-color':'#A3FF66'
+					})
+					mode_choose = 0;
+				}else if(id == 'ai'){
+					$('#double').css({
+						'background-color':'#D5D5D5'
+					})
+					$('#man').css({
+						'background-color':'#D5D5D5'
+					})
+					$('#ai').css({
+						'background-color':'#A3FF66'
+					})
+					mode_choose = 1;
+				}else{
+					$('#double').css({
+						'background-color':'#D5D5D5'
+					})
+					$('#ai').css({
+						'background-color':'#D5D5D5'
+					})
+					$('#man').css({
+						'background-color':'#A3FF66'
+					})
+					mode_choose = 2;
+				}
+			})
+	</script>
+	
+	<!-- 棋盘按键响应，reset键js -->
+	<script>
+			
+			$(".btn_inside").click(function(){
+				// alert('ok');
+				var clicked = $(this).attr('clicked');
+
+				if(clicked == '0'){
+
+					var x = parseInt($(this).attr('location_x'));
+					var y = parseInt($(this).attr('location_y'));
+
+					if (circle) {
+						$(this).html("<img src='circle.png' style='height:96px;width:96px'>");
+						circle = 0;
+						mat[x][y] = 1;
+
+					}else{
+						$(this).html("<img src='cross.png' style='height:96px;width:96px'>");
+						circle = 1;
+						mat[x][y] = 2;
+
+					}
+					
+					$(this).attr('clicked','1');
+
+					if(!judge() && mode_current != 0){
+						setTimeout('aiGo()',500);  //如果此时比赛没有结果，那么ai可以走
+					}
+
+				}
+
+			});
+
+
+
+			$('.btn_reset').click(function(){
+				mode_current = mode_choose;
+				circle = 1;
+				$('.btn_inside').each(function(){
+					$(this).attr('clicked','0');
+					$(this).html('');
+					for (var i = 0; i < 3; i ++) {
+						for (var j = 0; j < 3; j++) {
+							mat[i][j] = 0;
+						}
+					}
+				})
+				$('.remark').css({
+					'color':'#3FAFAF'
+				})
+				$('.remark').html('have fun!');
+
+				if(mode_current == 1){
+					aiGo();
+				}
+			})
+
+			function checkWin(tmat){
+				// 胜利的情况只有八种，遍历出来就行
+
+				if(tmat[0][0] != 0 && tmat[0][0] == tmat[0][1] && tmat[0][1] == tmat[0][2]){
+					return tmat[0][0];
+				}
+				if(tmat[1][0] != 0 && tmat[1][0] == tmat[1][1] && tmat[1][1] == tmat[1][2]){
+					return tmat[1][0];
+				}
+				if(tmat[2][0] != 0 && tmat[2][0] == tmat[2][1] && tmat[2][1] == tmat[2][2]){
+					return tmat[2][0];
+				}
+				if(tmat[0][0] != 0 && tmat[0][0] == tmat[1][0] && tmat[1][0] == tmat[2][0]){
+					return tmat[0][0];
+				}
+				if(tmat[0][1] != 0 && tmat[0][1] == tmat[1][1] && tmat[1][1] == tmat[2][1]){
+					return tmat[0][1];
+				}
+				if(tmat[0][2] != 0 && tmat[0][2] == tmat[1][2] && tmat[1][2] == tmat[2][2]){
+					return tmat[0][2];
+				}
+				if(tmat[0][0] != 0 && tmat[0][0] == tmat[1][1] && tmat[1][1] == tmat[2][2]){
+					return tmat[0][0];
+				}
+				if(tmat[0][2] != 0 && tmat[0][2] == tmat[1][1] && tmat[1][1] == tmat[2][0]){
+					return tmat[0][2];
+				}
+
+				for (var i = 0; i < 3; i ++) {
+					for (var j = 0; j < 3; j++) {
+						// 说明此时还有地方可以走
+						if(tmat[i][j] == 0) return 0;
+					}
+				}
+
+				// 平局
+				return 3;
+			}
+
+			function judge(){
+				var win = checkWin(mat);
+				// 
+				if(win == 1){
+					$('.remark').css({
+						'color':'red'
+					});
+					$('.remark').html('red win!');
+
+					$('.btn_inside').each(function(){
+						$(this).attr('clicked','1');
+					})
+
+					return true;
+				}else if(win == 2){
+					$('.remark').css({
+						'color':'black'
+					});
+					$('.remark').html('black win!');
+
+					$('.btn_inside').each(function(){
+						$(this).attr('clicked','1');
+					})
+
+					return true;
+				}else if(win == 3){
+					$('.remark').html('drawn game!');
+
+					$('.btn_inside').each(function(){
+						$(this).attr('clicked','1');
+					})
+
+					return true;
+				}
+
+				return false;
+
+			}
+
+	</script>
+
+	<!-- 人工智能js -->
+	<script>
+			function aiGo(){
+				if(circle == 1){
+					var str = "<img src='circle.png' style='height:96px;width:96px'>";
+				}else{
+					var str = "<img src='cross.png' style='height:96px;width:96px'>"
+				}
+
+				// 如果中间的点没有被下过，那就下中间的点
+				if (mat[1][1] == 0) {
+					$('#five').html(str);
+					$('#five').attr('clicked','1');
+					if(circle){
+						mat[1][1] = 1;
+					}else{
+						mat[1][1] = 2;
+					}
+					circle = 1 - circle;
+					judge();
+					return;
+				}else if(mat[0][0] == 0 && mat[0][2] == 0 && mat[2][0] == 0 && mat[2][2] == 0 ){
+					// 中间的点被下过了，并且角的点没被下过
+					$('#one').html(str);
+					$('#one').attr('clicked','1');
+					if(circle){
+						mat[0][0] = 1;
+					}else{
+						mat[0][0] = 2;
+					}
+					circle = 1 - circle;
+					judge();
+					return;
+				}else{
+					// 中间和角都被下过了，开始搜索
+					// 记录当前棋局状态
+					temp_mat[0] = mat[0].concat();
+					temp_mat[1] = mat[1].concat();
+					temp_mat[2] = mat[2].concat();
+					// alert(temp_mat);
+					// 开始搜
+					var max_x; //最大横坐标
+					var max_y; //最大纵坐标
+					var max_value = -3; //最大值
+					for(var i = 0;i < 3;i ++){
+						for(var j = 0;j < 3;j ++){
+							if(temp_mat[i][j] == 0){
+								var v = search(1,i,j);
+								if(max_value < v){
+									max_x = i;
+									max_y = j;
+									max_value = v;
+								}
+								if(max_value == 1) break;
+							}
+						}
+					}
+					// alert(max_x);
+					// alert(max_y);
+					// alert(max_value);
+
+					$(index[max_x*3+max_y]).html(str);
+					$(index[max_x*3+max_y]).attr('clicked','1');
+					if(circle){
+						mat[max_x][max_y] = 1;
+					}else{
+						mat[max_x][max_y] = 2;
+					}
+					circle = 1 - circle;
+
+					judge();
+					return;
+				}
+			}
+
+			function search(ai,x,y){
+				// ai 代表这一步是ai要走的
+				if(ai){
+					temp_mat[x][y] = 2 - circle;
+				}else{
+					temp_mat[x][y] = 2 - (1 - circle);
+				}
+				// 首先判断下完这一步之后的输赢情况
+				var win = checkWin(temp_mat);
+				if(win == 1){
+					temp_mat[x][y] = 0; //搜索完要退格
+					if(circle){	// circle说明ai走的是圆圈
+						return 1;
+					}else{
+						return -1;
+					}
+				}else if(win == 2){
+					temp_mat[x][y] = 0; //搜索完要退格
+					if(circle){ // circle说明ai走的是圆圈
+						return -1;
+					}else{
+						return 1;
+					}
+				}else if(win == 3){
+					temp_mat[x][y] = 0; //搜索完要退格
+					return 0;
+				}else{
+					var max_value;
+					if(ai){
+						max_value = 3;
+					}else{
+						max_value = -3;
+					}
+					for(var i = 0;i < 3;i ++){
+						for(var j = 0;j < 3;j ++){
+							if(temp_mat[i][j] == 0){
+								var v = search(1-ai,i,j);
+								if(ai){
+									if(max_value > v){
+										max_value = v;
+									}
+									if(max_value == -1) break;
+								}else{
+									if(max_value < v){
+										max_value = v;
+									}
+									if(max_value == 1) break;
+								}
+							}
+						}
+					}
+					temp_mat[x][y] = 0;
+					return max_value;
+				}
+			}
+	</script>
+</body>
+</html>
